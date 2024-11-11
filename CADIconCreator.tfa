@@ -1,6 +1,6 @@
 ﻿[025783EF-C1C4-4057-B5E2-BC9368705363]
-encoding=ANSI
-dll=CADIconCreator.dll
+Encoding=ANSI
+Dll=CADIconCreator.dll
 Managed=1
-name=Создание иконок
-autoStart=1
+Name=Создание иконок
+AutoStart=1

@@ -14,7 +14,7 @@ namespace CADIconCreator
 {
     enum CommandNames
     {
-        CreateIcon,
+        CreateIcon = 1,
     }
 
     public class Factory : PluginFactory
@@ -42,6 +42,8 @@ namespace CADIconCreator
     public class IconCreatorPlugin : Plugin
     {
         private RibbonGroup _group;
+        private Document _document;
+        private UserControl1 _control;
         public static PluginFloatingWindow FloatingWindow { get; internal set; }
         public IconCreatorPlugin(PluginFactory Factory) : base(Factory)
         {
@@ -77,7 +79,7 @@ namespace CADIconCreator
         protected override void OnCreateTools()
         {
 
-            RegisterCommand((int)CommandNames.CreateIcon, "Копировать фрагмент", LoadIconResource("Icon"), LoadIconResource("Icon"));
+            RegisterCommand((int)CommandNames.CreateIcon, "Создание иконок", LoadIconResource("Icon"), LoadIconResource("Icon"));
 
             RibbonTab rb = new RibbonTab("Создание иконок", this.ID, this);
 
@@ -95,15 +97,6 @@ namespace CADIconCreator
             CreateWindow();
         }
 
-        private void SetReferenceWindowControl()
-        {
-
-        }
-
-        private void SetWorkingPageControl()
-        {
-        }
-
         public void CreateWindow()
         {
             if (FloatingWindow != null)
@@ -117,9 +110,10 @@ namespace CADIconCreator
 
         protected override System.Windows.Forms.Control CreateFloatingWindowControl(uint id)
         {
-            if (id != 0)
-                return null;
-
+            //if (id != 0)
+            //    return null;
+            _control = new UserControl1();
+            return _control;
             //До загрузки докса, нужно создать панель заглушку иначе будет падение при инициализации окна CAD
             return new System.Windows.Forms.Panel();
         }
@@ -136,7 +130,8 @@ namespace CADIconCreator
             switch ((CommandNames)id)
             {
                 case CommandNames.CreateIcon:
-                    break;
+                    FloatingWindow.Visible = !FloatingWindow.Visible;
+                   break;
             }
 
         }
@@ -150,6 +145,11 @@ namespace CADIconCreator
             if (cmdUI == null)
                 return;
 
+            if (cmdUI.Document == null)
+            {
+                cmdUI.Enable(false);
+                return;
+            }
         }
     }
 }
