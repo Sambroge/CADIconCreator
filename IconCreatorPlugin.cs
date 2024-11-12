@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TFlex;
 using TFlex.Model;
 using TFlex.Model.Model3D;
-using System.Windows.Forms;
-using System.Data;
-using System.Diagnostics;
 using TFlex.Command;
+using System.IO;
+using System.Collections.Generic;
+using Res = CADIconCreator.Properties.Resources;
 
 namespace CADIconCreator
 {
@@ -16,10 +13,9 @@ namespace CADIconCreator
     {
         CreateIcon = 1,
     }
-
     public class Factory : PluginFactory
     {
-		public override Plugin CreateInstance()
+        public override Plugin CreateInstance()
         {
             return new IconCreatorPlugin(this);
         }
@@ -30,17 +26,17 @@ namespace CADIconCreator
                 return new Guid("{025783EF-C1C4-4057-B5E2-BC9368705363}");
             }
         }
-		public override string Name
+        public override string Name
         {
             get
             {
-                return "Создание иконок";
+                return Res.PluginName;
             }
         }
     };
-
     public class IconCreatorPlugin : Plugin
     {
+        private List<Construction3D> hiddenObjects;
         private RibbonGroup _group;
         private Document _document;
         private UserControl1 _control;
@@ -49,7 +45,6 @@ namespace CADIconCreator
         {
 
         }
-
         /// <summary>
         /// Загрузка иконок
         /// </summary>
@@ -68,7 +63,6 @@ namespace CADIconCreator
                 return null;
             }
         }
-
         protected override void TrackingContextPopupMenuEventHandler(TrackingContextPopupMenuEventArgs args)
         {
         }
@@ -79,44 +73,44 @@ namespace CADIconCreator
         protected override void OnCreateTools()
         {
 
-            RegisterCommand((int)CommandNames.CreateIcon, "Создание иконок", LoadIconResource("Icon"), LoadIconResource("Icon"));
+            RegisterCommand((int)CommandNames.CreateIcon, Res.PluginName, LoadIconResource("Icon"), LoadIconResource("Icon"));
 
-            RibbonTab rb = new RibbonTab("Создание иконок", this.ID, this);
+            RibbonTab rb = new RibbonTab(Res.PluginName, this.ID, this);
 
             // Для добавления команд во вкладку "Приложения"
-            RibbonGroup ribbongroup = RibbonBar.ApplicationsTab.AddGroup("Создание иконок");
-            ribbongroup.AddButton((int)CommandNames.CreateIcon, "Создать иконку", this, RibbonButtonStyle.SmallIcon);
 
-            _group = rb.AddGroup("Иконки");
-            _group.AddButton((int)CommandNames.CreateIcon, "Создать иконку", this, RibbonButtonStyle.LargeIconAndCaption);
+            //RibbonGroup ribbongroup = RibbonBar.ApplicationsTab.AddGroup("Создание иконок");
+            //ribbongroup.AddButton((int)CommandNames.CreateIcon, "Создать иконку", this, RibbonButtonStyle.LargeIconAndCaption);
+
+            _group = rb.AddGroup(Res.GroupName);
+            _group.AddButton((int)CommandNames.CreateIcon, Res.ButtonName, this, RibbonButtonStyle.LargeIconAndCaption);
 
             //На случай если плагин был подключён, когда документ был уже создан и открыт (все места для AttachPlugin() пропущены),
             //просто подключаем плагин к текущему документу
             if (TFlex.Application.ActiveDocument != null) TFlex.Application.ActiveDocument.AttachPlugin(this);
 
-            CreateWindow();
+            //CreateWindow();
         }
+        //public void CreateWindow()
+        //{
+        //    if (FloatingWindow != null)
+        //        return;
 
-        public void CreateWindow()
-        {
-            if (FloatingWindow != null)
-                return;
+        //    FloatingWindow = CreateFloatingWindow(0, "Параметры создания иконки");
+        //    FloatingWindow.Caption = "Создание иконки";
+        //    FloatingWindow.Icon = LoadIconResource("Icon");
+        //    FloatingWindow.Visible = false;
+        //}
 
-            FloatingWindow = CreateFloatingWindow(0, "Параметры создания иконки");
-            FloatingWindow.Caption = "Создание иконки";
-            FloatingWindow.Icon = LoadIconResource("Icon");
-            FloatingWindow.Visible = false;
-        }
-
-        protected override System.Windows.Forms.Control CreateFloatingWindowControl(uint id)
-        {
-            //if (id != 0)
-            //    return null;
-            _control = new UserControl1();
-            return _control;
-            //До загрузки докса, нужно создать панель заглушку иначе будет падение при инициализации окна CAD
-            return new System.Windows.Forms.Panel();
-        }
+        //protected override System.Windows.Forms.Control CreateFloatingWindowControl(uint id)
+        //{
+        //    //if (id != 0)
+        //    //    return null;
+        //    _control = new UserControl1();
+        //    return _control;
+        //    //До загрузки докса, нужно создать панель заглушку иначе будет падение при инициализации окна CAD
+        //    return new System.Windows.Forms.Panel();
+        //}
 
         /// <summary>
         /// Обработка команд от панели и главного меню
@@ -130,12 +124,71 @@ namespace CADIconCreator
             switch ((CommandNames)id)
             {
                 case CommandNames.CreateIcon:
-                    FloatingWindow.Visible = !FloatingWindow.Visible;
-                   break;
+                    hiddenObjects = new List<Construction3D>();
+                    document.BeginChanges(Res.BeginChangesTitle);
+                    foreach (var obj in document.GetObjects())
+                        if (obj is Construction3D con)
+                        {
+                            if (con.VisibleInScene == true)
+                            {
+                                hiddenObjects.Add(con);
+                                con.VisibleInScene = false;
+                            }
+                        }
+                    if (CreateIcon(document))
+                    {
+                        foreach (Construction3D con in hiddenObjects) con.VisibleInScene = true;
+                        document.EndChanges();
+                    }
+                    else
+                    {
+                        document.CancelChanges();
+                    }
+                    //FloatingWindow.Visible = !FloatingWindow.Visible;
+                    hiddenObjects.Clear();
+                    hiddenObjects = null;
+                    break;
             }
 
         }
-
+        private bool CreateIcon(Document document)
+        {
+            string path;
+            ExportToBitmap3D param = new ExportToBitmap3D(document.ActiveView)
+            {
+                Height = 256,
+                Width = 256,
+                PixelSize = true,
+                Annotations = false,
+                Constructions = false,
+                Dpi = 72,
+            };
+            string tempPath = Path.GetTempPath();
+            try
+            {
+                path = tempPath + document.FileName.Replace(document.FilePath, "").Replace(".grb", ".bmp");
+            }
+            catch
+            {
+                document.Diagnostics.Add(new DiagnosticsMessage(DiagnosticsMessageType.Warning, Res.NotSavedDocumentError + this.Name));
+                return false;
+            }
+            param.Export(path);
+            document.ImportIcon(path);
+            DeleteTempFile(path, document);
+            return true;
+        }
+        private void DeleteTempFile(string path, Document document)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (IOException ex)
+            {
+                document.Diagnostics.Add(new DiagnosticsMessage(DiagnosticsMessageType.Warning, Res.FileDeletingError + path + ". Плагин " + this.Name));
+            }
+        }
         /// <summary>
         /// Здесь можно блокировать команды и устанавливать галочки
         /// </summary>

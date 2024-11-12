@@ -12,6 +12,9 @@ using TFlex.Model.Model3D;
 
 namespace CADIconCreator
 {
+    /// <summary>
+    /// Canceled. Options floating window.
+    /// </summary>
     public partial class UserControl1 : UserControl
     {
         public UserControl1()

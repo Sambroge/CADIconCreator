@@ -59,5 +59,68 @@ namespace CADIconCreator.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Создание иконки..
+        /// </summary>
+        internal static string BeginChangesTitle {
+            get {
+                return ResourceManager.GetString("BeginChangesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Создать икнонку.
+        /// </summary>
+        internal static string ButtonName {
+            get {
+                return ResourceManager.GetString("ButtonName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string CommandName {
+            get {
+                return ResourceManager.GetString("CommandName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ошибка при удалении временного файла .
+        /// </summary>
+        internal static string FileDeletingError {
+            get {
+                return ResourceManager.GetString("FileDeletingError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Иконки.
+        /// </summary>
+        internal static string GroupName {
+            get {
+                return ResourceManager.GetString("GroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Недопускается работать с несохранённым файлом. Плагин .
+        /// </summary>
+        internal static string NotSavedDocumentError {
+            get {
+                return ResourceManager.GetString("NotSavedDocumentError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Создание иконок.
+        /// </summary>
+        internal static string PluginName {
+            get {
+                return ResourceManager.GetString("PluginName", resourceCulture);
+            }
+        }
     }
 }
