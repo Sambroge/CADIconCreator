@@ -38,8 +38,6 @@ namespace CADIconCreator
     {
         private List<Construction3D> hiddenObjects;
         private RibbonGroup _group;
-        private Document _document;
-        private UserControl1 _control;
         public static PluginFloatingWindow FloatingWindow { get; internal set; }
         public IconCreatorPlugin(PluginFactory Factory) : base(Factory)
         {
@@ -108,8 +106,6 @@ namespace CADIconCreator
         //    //    return null;
         //    _control = new UserControl1();
         //    return _control;
-        //    //До загрузки докса, нужно создать панель заглушку иначе будет падение при инициализации окна CAD
-        //    return new System.Windows.Forms.Panel();
         //}
 
         /// <summary>
@@ -184,7 +180,7 @@ namespace CADIconCreator
             {
                 File.Delete(path);
             }
-            catch (IOException ex)
+            catch (IOException)
             {
                 document.Diagnostics.Add(new DiagnosticsMessage(DiagnosticsMessageType.Warning, Res.FileDeletingError + path + ". Плагин " + this.Name));
             }
