@@ -32,9 +32,9 @@ T-FLEX CAD версии 17.1.21.0 или выше.
 
 ### Доработка проекта
 При необходимости доработать проект под свои нужды.
-1. Склонировать репозиторий себе лоально 
-bash``` git clone https://github.com/Sambroge/CADIconCreator.git ```
-2. В проекте необходимо актуальный путь у сборок TFlexAPI, TFlexAPI3D, TFlexAPIData, TFlexCommandAPI
+1. Склонировать репозиторий себе лоально. <br>
+``` git clone https://github.com/Sambroge/CADIconCreator.git ```
+3. В проекте необходимо актуальный путь у сборок TFlexAPI, TFlexAPI3D, TFlexAPIData, TFlexCommandAPI
 
 ### Контактная информация
 Если у вас возникли вопросы или предложения, вы можете связаться со мной:
